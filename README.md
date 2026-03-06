@@ -28,10 +28,10 @@ AI agents are stateless. Systems drift. Sessions start from zero. Behold solves 
 
 **Actors** -- The participants in a workspace. Typically one human (the operator) and one or more AI agents (stewards). Each has a defined role and boundaries.
 
-**State** -- Persistent knowledge, organized in three tiers:
-- **Bedrock** -- Identity, environment, and principles. Rarely changes. Read on every session boot.
-- **Shelf** -- Accumulated knowledge that persists across sessions. Lessons learned, decisions, patterns.
-- **Flow** -- Session-scoped state. Current goals, scratch notes, active context. Expires when the session ends.
+**State** -- Persistent knowledge, organized in three tiers by how often it changes:
+- **Bedrock** -- Principles, identity, environment. Rarely changes. Read every session.
+- **Shelf** -- Skills, configs, reference docs. Changes weekly. Loaded on demand.
+- **Flow** -- Checkpoint, goals, logs, inbox. Changes every session. Read on resume.
 
 **Rhythm** -- Ceremonies that structure how work happens. Session open, session close, periodic reviews. These force observation and prevent drift.
 
