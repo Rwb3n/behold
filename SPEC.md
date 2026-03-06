@@ -438,7 +438,53 @@ Nothing in the system is sacred except the feedback loop itself. Principles can 
 
 ---
 
-## 8. The Autonomous Layer (Optional)
+## 8. Memory Architecture
+
+Agent memory files tend to accumulate facts that duplicate authoritative sources elsewhere in the workspace. When facts change, they must be updated in multiple places -- and they will not be, because entropy is the default (P3). The memory file becomes a source of stale data masquerading as truth.
+
+### The Principle
+
+**Memory is an index, not a store.** If a fact has an authoritative home, point to it. If the fact has no other home, store it directly.
+
+### Two Roles
+
+| Role | Contains | Example |
+|------|----------|---------|
+| **Index** | Pointers to where truth lives | "Current priorities: see `state/flow/checkpoint.md`" |
+| **Cache** | Hard-won knowledge with no other home | "Always single-quote SSH commands from this OS -- double quotes leak PATH variables" |
+
+The test: **could this fact go stale while remaining in memory?** If yes, it should be a pointer to wherever the fact gets maintained. If no (because it is a stable pattern or quirk), store it directly.
+
+### Structure
+
+```markdown
+## Session Bridge
+[Pointers to flow state -- last session, open threads reference, flags]
+
+## Workspace Index
+[Pointers to authoritative sources -- tracker, registry, configs, designs]
+
+## Operator
+[Preferences, communication style, patterns -- memory IS the authority]
+
+## Agent Lessons
+[Operational patterns learned across sessions -- memory IS the authority]
+
+## Gotchas
+[Project-specific quirks and traps -- memory IS the authority]
+```
+
+### Rules
+
+1. **Never duplicate a tracked fact.** If the checkpoint tracks active work, do not repeat it in memory.
+2. **Pointers are cheap.** One line referencing a file is better than copying its contents.
+3. **Cache entries earn their place.** A gotcha must have caused a real problem at least once. Do not preemptively cache.
+4. **Session bridge is minimal.** Last session reference, pointer to open threads, and flags (uncommitted work, overdue sweeps). Not a project summary.
+5. **Review cache on staleness sweep.** Gotchas and lessons go stale too. Verify they are still relevant.
+
+---
+
+## 9. The Autonomous Layer (Optional)
 
 A background agent process that operates between human sessions. Not every workspace needs it, but Behold codifies the pattern.
 
@@ -501,7 +547,7 @@ The interactive agent and autonomous agent share state but not identity.
 
 ---
 
-## 9. Lineage
+## 10. Lineage
 
 An infrastructure operations workspace managing physical servers evolved governance-first patterns: principles, ceremonies, activities, assets, and a self-amending feedback loop. It developed map-and-territory separation, health check ceremonies, SSH-based territory verification, and a five-document service pattern.
 
