@@ -1,0 +1,510 @@
+# Behold
+
+**Structure for systems that remember.**
+
+An opinionated specification for building persistent, ceremony-driven workspaces where humans and AI agents collaborate with continuity.
+
+---
+
+## 1. Introduction
+
+### The Problem
+
+AI agents are stateless. Complex systems drift. Humans and agents work in different sessions, at different times, with different context. Without structure, every session starts from zero, knowledge evaporates, and entropy wins.
+
+### The Thesis
+
+Three layers solve this:
+
+1. **Continuity** (foundation) -- persistent, tiered state that survives session boundaries and context loss.
+2. **Entropy resistance** (mechanism) -- ceremonies that force observation, reflection, and handoff.
+3. **Collaboration structure** (outcome) -- defined actors, boundaries, and feedback loops.
+
+### What Behold Is
+
+- A specification for workspace architecture.
+- An opinionated set of patterns, not a software library.
+- Language-agnostic, platform-agnostic, agent-agnostic.
+- Designed for one human and one or more AI agents, but scales to teams.
+
+### What Behold Is Not
+
+- A framework you `npm install`.
+- Tied to any specific AI model or agent platform.
+- An agent framework (no routing, orchestration, or message passing).
+- A project management methodology.
+
+---
+
+## 2. Core Concepts
+
+Five foundational concepts underpin every Behold workspace.
+
+### The Workspace
+
+The shared environment where human and agent operate. A directory on a filesystem -- git-tracked, human-readable, agent-readable. The workspace is the map, not the territory. It represents a system but is not the system itself. When the map diverges from reality, that is a bug.
+
+### Actors
+
+Every workspace has at least two actors:
+
+- **The Operator** -- the human. Owns all decisions. Provides intent, approves destructive changes, bridges the gap between map and territory.
+- **The Agent** -- the AI. Maintains the map, runs ceremonies, holds continuity across sessions, proposes and executes work. Stateless by nature, made persistent by the framework.
+
+Actors have defined boundaries -- what each owns, what requires the other. These are explicit, not assumed.
+
+### State
+
+All persistent knowledge lives in state, organized into tiers by how often it changes:
+
+| Tier | Changes | Contains | Read |
+|------|---------|----------|------|
+| Bedrock | Rarely | Principles, identity, environment, boundaries | Every session |
+| Shelf | Weekly | Skills, configs, reference docs | On demand |
+| Flow | Every session | Checkpoint, goals, logs, active work | On resume |
+
+The tiering tells the agent what to load when, and signals what is safe to change without asking.
+
+### Rhythm
+
+Ceremonies are the heartbeat. They force the workspace to observe itself at regular intervals. Ceremonies are defined by: trigger, cadence, steps, and output. They are not optional rituals -- they are the mechanism by which the system maintains itself.
+
+### Feedback
+
+The system is self-amending. Lessons flow upward: session retros update ceremonies, repeated friction updates principles, stale items get surfaced and resolved. This is the core defense against ossification.
+
+```
+BEDROCK ---informs---> SHELF ---structures---> FLOW
+   ^                                            |
+   |                                         produces
+   |                                            v
+   \<--- feedback --- OBSERVATIONS <--- CEREMONIES
+```
+
+---
+
+## 3. Principles
+
+Seven principles govern every Behold workspace.
+
+### P1: Continuity Over Capability
+
+The ability to pick up where you left off matters more than how much you can do in a single session.
+
+**Implies:**
+- Checkpoint before you would regret losing context.
+- State persistence is not optional.
+- Session boundaries are handled, not ignored.
+
+**Does not mean:**
+- Hoard everything -- prune aggressively.
+- Sacrifice capability -- continuity enables it.
+
+### P2: Observe Before You Act
+
+Check what exists before building. Read before writing. Look before theorizing.
+
+**Implies:**
+- Session Open reads state before proposing work.
+- Ceremonies check reality before updating docs.
+- Agents verify before assuming.
+
+**Does not mean:**
+- Analysis paralysis.
+- Never act on instinct.
+
+### P3: Entropy Is the Default
+
+Systems drift toward disorder. Documentation goes stale. State diverges from reality. This is not a risk -- it is a certainty.
+
+**Implies:**
+- Staleness sweeps are required, not optional.
+- Freshness thresholds are explicit.
+- Unobserved state is suspect state.
+
+**Does not mean:**
+- Constant churn.
+- Rewrite everything every week.
+
+### P4: Earn Complexity
+
+Start with the simplest thing that works. Add structure when the absence of structure causes pain.
+
+**Implies:**
+- Do not add ceremonies you do not need yet.
+- Do not build tools "just in case."
+- Let the system tell you what it needs.
+
+**Does not mean:**
+- No planning.
+- No upfront structure (the starter kit is the minimum viable structure).
+
+### P5: Map and Territory
+
+The workspace is a representation of something real. When the map diverges from reality, the map is wrong.
+
+**Implies:**
+- Verify the map against the territory regularly.
+- Do not document hypotheticals as facts.
+- Agents that can reach the territory should check it directly.
+
+**Does not mean:**
+- Document everything in real-time.
+- No abstractions or summaries.
+
+### P6: Feedback Over Prescription
+
+The system amends itself. Lessons flow upward into principles. Retros update ceremonies. Friction triggers review.
+
+**Implies:**
+- Every ceremony produces observations.
+- Observations accumulate into patterns.
+- Patterns justify amendments.
+
+**Does not mean:**
+- Change things after one data point.
+- No stable foundation.
+
+### P7: Boundaries Are Load-Bearing
+
+Explicit boundaries between actors, between state tiers, and between interactive and autonomous agents prevent the wrong thing from changing at the wrong time.
+
+**Implies:**
+- Define who owns what.
+- Bedrock requires operator approval to change.
+- Autonomous agents have stricter constraints than interactive ones.
+
+**Does not mean:**
+- Bureaucracy for its own sake.
+- Agents cannot act without permission on routine matters.
+
+---
+
+## 4. State Architecture
+
+### Directory Layout
+
+```
+workspace/
+  state/
+    bedrock/
+      principles.md
+      identity.md
+      environment.md
+    shelf/
+      skills/
+      configs/
+    flow/
+      checkpoint.md
+      goals.md
+      log/
+      inbox/
+  skills/
+  tools/
+  docs/
+    plans/
+    decisions/
+  AGENTS.md
+```
+
+### The Checkpoint
+
+The most important file. It answers: What is active? What is next? What is later? What happened recently?
+
+Updated at:
+- **Session Close** (required).
+- **After significant milestones** (expected).
+- **Before any operation that risks context loss** (defensive).
+
+### The Bootstrap File
+
+`AGENTS.md` is the agent-agnostic entry point. It points at:
+- `state/bedrock/` as the first read.
+- `state/flow/checkpoint.md` as the resume point.
+- `skills/` for available capabilities.
+- Quick-reference commands.
+
+Platform-specific shims are one-line pointers:
+- `CLAUDE.md` -> `AGENTS.md`
+- `.cursorrules` -> `AGENTS.md`
+- `.github/copilot-instructions.md` -> `AGENTS.md`
+
+### State Hygiene Rules
+
+1. **Bedrock is protected.** Agents do not modify without operator approval.
+2. **Flow is append-friendly.** Logs append. Checkpoints overwrite but carry forward unfinished items.
+3. **Shelf is load-on-demand.** Do not read everything at boot.
+4. **Everything is git-tracked.** State changes are commits.
+5. **Staleness thresholds are explicit.**
+
+| Tier | Default Staleness Threshold |
+|------|----------------------------|
+| Bedrock | 30 days |
+| Shelf | 21 days |
+| Flow (checkpoint) | 1 session |
+| Flow (goals) | 14 days |
+| Flow (logs) | N/A (append-only) |
+
+---
+
+## 5. Ceremony Catalogue
+
+### Required Ceremonies
+
+Five ceremonies are required in every Behold workspace.
+
+#### Session Open
+
+**Trigger:** Start of every session.
+
+**Steps:**
+1. Load state (bedrock if cold start, flow always).
+2. Read checkpoint.
+3. Check what happened since last session.
+4. Present status, propose plan.
+5. Create session log.
+
+**Output:** Agent oriented, operator briefed, log started.
+
+#### Session Close
+
+**Trigger:** End of every session.
+
+**Steps:**
+1. Review accomplishments.
+2. Retro: keep / stop / start.
+3. Extract and classify actions.
+4. Update checkpoint.
+5. Commit state.
+
+**Output:** Checkpoint current, lessons captured, clean handoff.
+
+#### Session Resume
+
+**Trigger:** Context loss mid-session (compression, restart, new conversation).
+
+**Steps:**
+1. Read flow state only (NOT bedrock).
+2. Scan recent changes.
+3. Do NOT re-propose plan.
+4. Confirm position with operator.
+
+**Output:** Agent re-synced, no repeated work.
+
+**Key distinction:** Session Open is a cold start with full load. Session Resume is a warm restart with flow only.
+
+#### Staleness Sweep
+
+**Trigger:** Periodic (default every 5 sessions).
+
+**Steps:**
+1. Audit state files against freshness thresholds.
+2. Classify: fresh / aging / stale.
+3. Operator reviews stale items.
+4. Prune expired artifacts.
+
+**Output:** Entropy reduced, stale items surfaced.
+
+#### Incident Response
+
+**Trigger:** Ad-hoc, triggered by breakage.
+
+**During:**
+- Capture symptoms.
+- Document attempts.
+- Record resolution.
+
+**Post:**
+- Extract root cause.
+- Write lesson.
+- Update docs.
+- Consider prevention.
+
+**Output:** Knowledge preserved from crisis.
+
+### Optional Ceremonies
+
+These are not required but represent patterns that workspaces commonly evolve:
+
+- **Health Check** -- periodic system audit.
+- **Morning/Night Brief** -- autonomous background observation.
+- **Context Manifest** -- record files loaded and token cost.
+- **Monthly Review** -- trends, cost/benefit, roadmap.
+- **Principle Review** -- question foundational beliefs.
+
+### Ceremony Anatomy
+
+Every ceremony follows this structure:
+
+```yaml
+name:        human-readable identifier
+type:        ceremony
+trigger:     what initiates it
+cadence:     how often
+steps:       ordered checklist
+output:      what it produces
+references:  which principles it serves
+```
+
+---
+
+## 6. Skills and Tools
+
+### Skills
+
+Skills are executable knowledge -- documents that teach the agent how to do repeatable things. A skill is a document, not code.
+
+#### Skill Anatomy
+
+```yaml
+name:        human-readable identifier
+type:        ceremony | tool | workflow
+trigger:     what activates it
+depends:     external requirements
+---
+[Steps, instructions, output format]
+```
+
+Every skill is:
+- A markdown file in a directory under `skills/`.
+- Agent-agnostic.
+- Self-contained.
+- Discoverable.
+
+#### Skill Types
+
+| Type | Purpose | Example |
+|------|---------|---------|
+| Ceremony | Recurring rhythm | session-open, staleness-sweep |
+| Tool | Wraps external capability | fetch-url, transcribe-audio |
+| Workflow | Multi-step process | brainstorm -> design -> plan |
+
+### Tools
+
+Composable executables that extend what the agent can do.
+
+- Live in `tools/` (or `bin/`).
+- stdin/stdout composable where possible.
+- Get skill wrappers -- the skill teaches the agent how to use the tool.
+- Documented by their skill, not a separate README.
+
+A tool does the work. A skill teaches the agent how to use it.
+
+```
+skills/fetch-url/       <- skill (instructions)
+  SKILL.md
+tools/fetch             <- tool (executable)
+```
+
+---
+
+## 7. Feedback and Self-Amendment
+
+### The Feedback Loop
+
+```
+observe -> reflect -> extract -> amend -> observe
+```
+
+| Ceremony | Observation Type | Feeds Into |
+|----------|-----------------|------------|
+| Session Close | Retro (keep/stop/start) | Skills, ceremonies, goals |
+| Staleness Sweep | Drift report | State hygiene |
+| Incident Response | Root cause + lesson | Bedrock or shelf |
+| Session Open | Integrity check | State accuracy |
+
+### Amendment Levels
+
+| Tier | Threshold | Process |
+|------|-----------|---------|
+| Flow | Agent discretion | Update freely |
+| Shelf | Pattern observed twice | Agent proposes, operator approves |
+| Bedrock | Repeated pattern + operator approval | Explicit decision, logged |
+
+The more stable the tier, the more evidence required to change it.
+
+### Lessons as First-Class Artifacts
+
+Lifecycle: observation -> lesson -> pattern -> amendment.
+
+- Captured during Session Close, Incident Response, or ad-hoc.
+- Stored in `docs/decisions/`.
+- Reviewed during sweeps.
+- Promoted when patterns emerge.
+
+### The Self-Amendment Contract
+
+Nothing in the system is sacred except the feedback loop itself. Principles can change. Ceremonies can change. Skills can change. The commitment to observe, reflect, and amend does not change.
+
+---
+
+## 8. The Autonomous Layer (Optional)
+
+A background agent process that operates between human sessions. Not every workspace needs it, but Behold codifies the pattern.
+
+### When You Need It
+
+- The workspace manages something that changes while the operator is away.
+- The operator wants to arrive already briefed.
+- There are repetitive observation tasks that do not need human judgment.
+
+### Architecture
+
+```
+GATHER -> EVALUATE -> ESCALATE
+(cheap)    (cheap)    (expensive only if needed)
+```
+
+- **Gather:** collect signals. Minimal cost, no LLM needed.
+- **Evaluate:** is this worth attention? Cheap model. Most signals die here.
+- **Escalate:** write to `inbox/`, send notification. Expensive model only when judgment is required.
+
+### Constraints
+
+1. Never modify bedrock.
+2. Never make irreversible changes.
+3. Escalate over act. When uncertain, write to `inbox/` and stop.
+4. Log everything. Every run produces an audit trail.
+5. Fail silent, not loud.
+
+### Implementation Pattern
+
+Behold prescribes the interface, not the implementation (systemd, cron, cloud functions, etc.):
+
+- **Trigger:** scheduled or event-driven.
+- **Input:** workspace state (read-only `flow/`).
+- **Output:** `inbox/` items, log entries, notifications.
+- **Identity:** separate file defining the autonomous agent's role and constraints.
+
+### Separation of Concerns
+
+```
+           OPERATOR (human)
+          Decides, approves, directs
+                  |
+     +------------+-------------+
+     |                          |
+ INTERACTIVE              AUTONOMOUS
+   AGENT                    AGENT
+ Collaborates              Watches
+ Proposes                  Triages
+ Executes                  Escalates
+ Full access               Read + inbox
+     |                          |
+     +------------+-------------+
+                  |
+               STATE
+              (shared)
+```
+
+The interactive agent and autonomous agent share state but not identity.
+
+---
+
+## 9. Lineage
+
+An infrastructure operations workspace managing physical servers evolved governance-first patterns: principles, ceremonies, activities, assets, and a self-amending feedback loop. It developed map-and-territory separation, health check ceremonies, SSH-based territory verification, and a five-document service pattern.
+
+A development lab building CLI tools with an AI agent evolved state-first patterns: tiered persistence, composable tools, an autonomous background layer, structured memory with cross-pollination, and context-aware session management.
+
+Both systems converged independently on the same deep patterns. Behold is the abstraction of what they share.
