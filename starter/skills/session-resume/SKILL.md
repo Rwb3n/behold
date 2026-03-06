@@ -5,6 +5,7 @@ trigger: context loss mid-session (compression, restart, new conversation within
 cadence: as needed
 depends: none
 references: P1 (Continuity Over Capability)
+provenance: required ceremony -- context loss mid-session is inevitable; warm restart prevents redundant work
 ---
 
 # Session Resume

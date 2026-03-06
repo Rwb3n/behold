@@ -17,7 +17,7 @@ AI agents are stateless. Systems drift. Sessions start from zero. Behold solves 
 
 - Something you `npm install`.
 - Tied to any specific AI model or platform.
-- An agent framework (no routing, orchestration, or message passing).
+- An agent framework -- no runtime infrastructure, no message buses, no routing services.
 - A project management methodology.
 
 ---

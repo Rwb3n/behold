@@ -5,6 +5,7 @@ trigger: periodic (every N sessions or calendar interval)
 cadence: configurable (default every 5 sessions)
 depends: none
 references: P3 (Entropy Is the Default), P6 (Feedback Over Prescription)
+provenance: required ceremony -- entropy is the default (P3); unobserved state is suspect state
 ---
 
 # Staleness Sweep

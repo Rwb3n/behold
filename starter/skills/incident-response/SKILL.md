@@ -5,6 +5,7 @@ trigger: breakage, outage, significant malfunction, or unexpected behavior
 cadence: ad-hoc
 depends: none
 references: P2 (Observe Before You Act), P5 (Map and Territory), P6 (Feedback Over Prescription)
+provenance: required ceremony -- crisis knowledge evaporates fastest; structured capture preserves it (P2, P6)
 ---
 
 # Incident Response

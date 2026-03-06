@@ -31,7 +31,7 @@ Three layers solve this:
 
 - A framework you `npm install`.
 - Tied to any specific AI model or agent platform.
-- An agent framework (no routing, orchestration, or message passing).
+- An agent framework -- no runtime infrastructure, no message buses, no routing services. Behold describes skill design patterns for multi-agent work; it does not provide the mechanism.
 - A project management methodology.
 
 ---
@@ -260,11 +260,12 @@ Five ceremonies are required in every Behold workspace.
 **Steps:**
 1. Load state (bedrock if cold start, flow always).
 2. Read checkpoint.
-3. Check what happened since last session.
-4. Present status, propose plan.
-5. Create session log.
+3. Scan action register. If `state/flow/open-actions.md` exists, scan for open items and include them in the briefing.
+4. Check what happened since last session.
+5. Present status, propose plan.
+6. Create session log.
 
-**Output:** Agent oriented, operator briefed, log started.
+**Output:** Agent oriented, operator briefed, open actions surfaced, log started.
 
 #### Session Close
 
@@ -273,11 +274,13 @@ Five ceremonies are required in every Behold workspace.
 **Steps:**
 1. Review accomplishments.
 2. Retro: keep / stop / start.
-3. Extract and classify actions.
-4. Update checkpoint.
-5. Commit state.
+3. Classify retro items (bug / feature / refactor / upgrade).
+4. Extract actions. Each actionable item gets an explicit status (`open`). Assign priority: now / next / later.
+5. Triage actions to the register. If the workspace maintains an action register (`state/flow/open-actions.md`), forward relevant actions with operator review. Retro is the snapshot; the register is the living list.
+6. Update checkpoint.
+7. Commit state.
 
-**Output:** Checkpoint current, lessons captured, clean handoff.
+**Output:** Checkpoint current, actions tracked, lessons captured, clean handoff.
 
 #### Session Resume
 
@@ -361,15 +364,39 @@ name:        human-readable identifier
 type:        ceremony | tool | workflow
 trigger:     what activates it
 depends:     external requirements
+provenance:  why this skill exists -- what failure or friction created it
 ---
 [Steps, instructions, output format]
 ```
 
+The `provenance` field traces the skill back to its origin: a real failure, a repeated friction, or an explicit operator request. It answers "why does this exist instead of being done ad-hoc?"
+
+Complex skills SHOULD also include a "Why This Exists" section in the body. The YAML provenance is the one-liner; the body section documents the full story -- what failure mode the skill prevents, how many times the problem occurred, and what the cost was. Skills that cannot articulate their provenance are candidates for pruning.
+
 Every skill is:
-- A markdown file in a directory under `skills/`.
+- A directory under `skills/` containing at least a `SKILL.md`.
 - Agent-agnostic.
 - Self-contained.
 - Discoverable.
+
+#### Skill Directory Structure
+
+```
+skills/
+  my-skill/
+    SKILL.md              <- Level 1: instructions (always loaded)
+    references/           <- Level 2: mechanical details (loaded on demand)
+      template.md
+      format-guide.md
+```
+
+**Level 1 (SKILL.md):** Orchestration logic -- what to do, in what order, what to validate. This is what the agent reads first. Keep it lean.
+
+**Level 2 (references/):** Mechanical details -- templates, format specifications, check definitions, examples. Loaded on demand by agents or sub-agents when needed.
+
+The rule: if removing a block from SKILL.md would not change the orchestration flow, it belongs in `references/`. Templates, exact table formats, and validation check definitions are references. Sequencing, gate criteria, and error recovery stay in SKILL.md.
+
+Progressive disclosure keeps skills readable regardless of complexity. It benefits single-agent workspaces (humans can scan SKILL.md without wading through templates) and multi-agent workspaces (workers are dispatched with specific reference files, not the entire skill).
 
 #### Skill Types
 
@@ -378,6 +405,26 @@ Every skill is:
 | Ceremony | Recurring rhythm | session-open, staleness-sweep |
 | Tool | Wraps external capability | fetch-url, transcribe-audio |
 | Workflow | Multi-step process | brainstorm -> design -> plan |
+
+### Multi-Agent Skill Architecture
+
+When a skill involves sub-agents, the main context SHOULD act as an orchestrator -- dispatching, gating, and validating -- rather than doing the work itself.
+
+#### Roles
+
+| Role | Reads | Writes | Decides |
+|------|-------|--------|---------|
+| Orchestrator (main context) | Checklists, manifests, validation reports | Agent prompts, gate decisions | Sequencing, quality gates, error recovery |
+| Worker (sub-agent) | Source files from disk | Output files to disk | Content within its scoped assignment |
+| Validator (sub-agent) | Output files + specs | Validation report | Pass/fail per check |
+
+#### Rules
+
+1. **Disk is the interface.** Workers read input from files and write output to files. The orchestrator routes by telling workers which files to read -- not by pasting content into prompts.
+2. **Gate between phases.** The orchestrator validates worker output before dispatching the next phase. A gate checks: did the output land? Is it complete? Does it contradict prior phase output?
+3. **Context is finite.** The orchestrator's context window is a shared resource. Delegating file reads to workers preserves it. When context approaches limits, dispatch remaining work as background agents rather than trying to recover inline.
+
+These rules apply when workspaces use sub-agents for complex, multi-step skills. Workspaces that operate with a single agent context can ignore this subsection entirely.
 
 ### Tools
 
@@ -422,6 +469,27 @@ observe -> reflect -> extract -> amend -> observe
 | Bedrock | Repeated pattern + operator approval | Explicit decision, logged |
 
 The more stable the tier, the more evidence required to change it.
+
+### Action Register Lifecycle
+
+Retro actions tend to evaporate. They are written during Session Close, noted in the log, and never revisited. The action register lifecycle prevents this.
+
+```
+observation -> action (open) -> triage -> register -> done
+```
+
+**The pattern:**
+- Session Close produces actions with an explicit status (`open` or `done`).
+- Triage (during Session Close or as a separate step) forwards actions to a running register, with operator review.
+- Session Open scans the register and surfaces open items in the briefing.
+- Done actions are struck through in place for audit trail, not deleted.
+
+**Rules:**
+1. Every action MUST have a status field to enable mechanical scanning.
+2. Actions flow from retros to the register during triage -- the operator decides which to forward.
+3. Session Open surfaces open actions. They do not get lost between sessions.
+4. The register file (`state/flow/open-actions.md`) is created lazily -- only when the first action is generated, not at workspace bootstrap.
+5. Workspaces with low action volume may keep actions inline in the checkpoint instead of a separate register. The lifecycle pattern is prescribed; the file structure is recommended.
 
 ### Lessons as First-Class Artifacts
 
