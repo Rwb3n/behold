@@ -191,6 +191,7 @@ workspace/
       principles.md
       identity.md
       environment.md
+      methods.md
     shelf/
       skills/
       configs/
@@ -218,6 +219,24 @@ Updated at:
 - **Before any operation that risks context loss** (defensive).
 
 When a workspace matures and checkpoint's Active/Next/Later cannot hold enough work detail, create shelf-level tracking documents. Checkpoint points to them with references. The tracking taxonomy is workspace-specific -- epics, sprints, arcs, chapters, or any structure that fits the domain. Behold does not prescribe the vocabulary; it prescribes the tier separation. Detailed tracking is shelf-frequency (changes weekly), not flow-frequency (changes every session).
+
+### The Methods Layer
+
+`state/bedrock/methods.md` declares how work is done -- named process constraints that inform which approaches are valid. Methods are distinct from principles:
+
+- **Principles** say WHY -- values and constraints on thinking. ("Start simple, complicate when forced.")
+- **Methods** say HOW WE WORK -- constraints on process. ("Brainstorm before building." "TDD when building tools.")
+
+A principle like "earn complexity" constrains what you build. A method like "design before plan" constrains how you build it. Principles are abstract and rarely change. Methods are concrete and may evolve as the workspace matures.
+
+Methods are bedrock-tier: loaded at session start, changed rarely, protected by operator approval. They do not enforce (skills do that). They declare intent, making process constraints visible and auditable.
+
+Example categories:
+- **Development** -- brainstorm before building, design before plan, test before ship.
+- **Knowledge** -- curate before storing, synthesise periodically.
+- **Operations** -- ceremonies for rhythm, earn complexity.
+
+The specific methods are workspace-defined. Behold prescribes the layer, not the content.
 
 ### The Backlog
 
@@ -280,7 +299,7 @@ Five ceremonies are required in every Behold workspace.
 **Trigger:** Start of every session.
 
 **Steps:**
-1. Load state (bedrock if cold start, flow always).
+1. Load state (bedrock if cold start, flow always). Bedrock includes principles, identity, environment, and methods.
 2. Read checkpoint.
 3. Scan backlog (`state/flow/backlog.md`) for items with status `open`. Include open items in the briefing. If the workspace uses an action register (`state/flow/open-actions.md`) instead, scan that.
 4. Check inbox (`state/flow/inbox/`). Triage items to backlog or dismiss.
@@ -428,6 +447,8 @@ Progressive disclosure keeps skills readable regardless of complexity. It benefi
 | Workflow | Multi-step process | brainstorm -> design -> plan, retro |
 
 Workflow-type skills can be invoked at multiple scopes. For example, a retro skill may be invoked at session scope (by session-close), feature scope (after completing a milestone), or ad-hoc (when the operator requests reflection). The skill is the same; the scope determines what gets reflected on.
+
+Workflow skills MAY include a `methods:` field in their frontmatter, linking the workflow to the methods it enforces. This creates an auditable chain: methods declare process constraints, workflows compose skills into sequences that honour those constraints, skills contain the hard gates. Workspaces that do not yet use methods.md can omit this field.
 
 ### Multi-Agent Skill Architecture
 

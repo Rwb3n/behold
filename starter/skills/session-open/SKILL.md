@@ -18,6 +18,7 @@ Orient to current state, brief the operator, and establish session intent.
    - Read `state/bedrock/principles.md`
    - Read `state/bedrock/identity.md`
    - Read `state/bedrock/environment.md`
+   - Read `state/bedrock/methods.md`
    - Skip this step on warm starts where bedrock is already loaded.
 
 2. **Read checkpoint**
