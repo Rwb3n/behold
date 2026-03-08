@@ -32,10 +32,10 @@ Orient to current state, brief the operator, and establish session intent.
    - List items in `state/flow/inbox/`.
    - Note anything awaiting operator attention.
 
-5. **Scan action register**
-   - If `state/flow/open-actions.md` exists, scan for items with status `open`.
-   - Include open actions in the status briefing.
-   - If the register does not exist, skip this step.
+5. **Scan backlog**
+   - Read `state/flow/backlog.md` and scan for items with status `open`.
+   - Include open items in the status briefing.
+   - If the workspace uses `state/flow/open-actions.md` instead, scan that.
 
 6. **Check what happened since last session**
    - Review recent version control history.
@@ -69,7 +69,7 @@ Session [N] start — [date] [time]
 
 Active: [from checkpoint]
 Inbox: [count or "empty"]
-Open actions: [count or "none" or "no register"]
+Backlog: [count open items]
 Recent: [summary of changes since last session]
 
 Priorities:

@@ -19,50 +19,29 @@ Reflect on the session, update state for continuity, and ensure clean handoff.
    - Review today's log for work recorded during the session.
    - Summarise: what got done, what didn't, what changed.
 
-2. **Retro with operator**
-   Present three prompts for collaborative reflection:
-   - **Keep doing:** What worked well this session?
-   - **Stop doing:** What wasted time or caused friction?
-   - **Start doing:** What was missing or would help next time?
+2. **Invoke retro skill**
+   - Run the retro skill (3-layer: reflection, classification, action register).
+   - If the session was trivial, note "lightweight session -- retro skipped."
 
-   This is collaborative — present observations, then discuss with operator.
+3. **Triage actions to backlog**
+   - Forward actionable items from the retro to `state/flow/backlog.md` with operator review.
+   - Each item gets priority (`now` / `next` / `later`) and status (`open`).
+   - **Bring forward:** re-read previous checkpoint actions. Unfinished items get re-evaluated -- re-prioritise, keep, or drop. Nothing silently disappears.
+   - If the workspace uses `state/flow/open-actions.md` instead, triage there.
 
-3. **Classify session items**
-   Tag each piece of work from the session:
-   - **bug** — something broke, was fixed or needs fixing
-   - **build** — new capability or feature
-   - **protect** — working feature that needs tests or documentation
-   - **refactor** — restructured, no behavior change
-   - **chore** — maintenance, cleanup, dependency updates
-
-   For retro items from step 2, also classify using:
-   - **bug** -- broken, fix it
-   - **feature** -- working, protect it
-   - **feature request** -- missing, build it
-   - **refactor** -- functional but poorly structured, redesign it
-   - **upgrade** -- functional but capped, enhance it
-
-4. **Extract prioritised actions**
-   - **Now** — carry into checkpoint as active
-   - **Next** — queue for upcoming sessions
-   - **Later** — backlog, revisit eventually
-   - **Bring forward:** re-read previous checkpoint actions. Unfinished items get re-evaluated — re-prioritise, keep, or drop. Nothing silently disappears.
-   - Every actionable item gets an explicit status: `open`.
-   - If the workspace maintains an action register (`state/flow/open-actions.md`), triage actions to it with operator review.
-
-5. **Update checkpoint**
+4. **Update checkpoint**
    - Write `state/flow/checkpoint.md` with current Active, Next, and Later.
    - Update "Last updated" date.
    - Carry forward unfinished items explicitly.
 
-6. **Update goals if needed**
+5. **Update goals if needed**
    - If standing goals changed or weekly goals shifted, update `state/flow/goals.md`.
 
-7. **Capture lessons**
+6. **Capture lessons**
    - If something was learned that has lasting value, write it to `docs/decisions/`.
    - Lessons that repeat across sessions are candidates for ceremony or principle amendments.
 
-8. **Append to today's log**
+7. **Append to today's log**
    - Add session end entry with:
      - What was accomplished
      - Retro findings (keep/stop/start)
@@ -70,7 +49,7 @@ Reflect on the session, update state for continuity, and ensure clean handoff.
      - Actions extracted
      - Any decisions made
 
-9. **Commit state**
+8. **Commit state**
    - Stage and commit all state changes.
 
 ## Output
@@ -93,7 +72,7 @@ Actions:
 - Next: [queued]
 - Later: [backlog]
 - Brought forward: [re-evaluated from previous checkpoint]
-Register: [N actions forwarded to register, or "no register"]
+Backlog: [N actions forwarded to backlog]
 
 Lessons: [any captured]
 ```

@@ -196,6 +196,7 @@ workspace/
       configs/
     flow/
       checkpoint.md
+      backlog.md
       goals.md
       log/
       inbox/
@@ -215,6 +216,19 @@ Updated at:
 - **Session Close** (required).
 - **After significant milestones** (expected).
 - **Before any operation that risks context loss** (defensive).
+
+When a workspace matures and checkpoint's Active/Next/Later cannot hold enough work detail, create shelf-level tracking documents. Checkpoint points to them with references. The tracking taxonomy is workspace-specific -- epics, sprints, arcs, chapters, or any structure that fits the domain. Behold does not prescribe the vocabulary; it prescribes the tier separation. Detailed tracking is shelf-frequency (changes weekly), not flow-frequency (changes every session).
+
+### The Backlog
+
+`state/flow/backlog.md` is the unified queue of open work items. It is fed by retros, sessions, ad-hoc decisions, memory observations, and inbox triage.
+
+The backlog is distinct from:
+- **Checkpoint** -- a view of what's active now.
+- **Logs** -- a historical record of what happened.
+- **Shelf-level tracking** -- detailed story/epic breakdowns.
+
+The backlog answers: what needs to be done that hasn't been started or finished?
 
 ### The Bootstrap File
 
@@ -245,6 +259,14 @@ Platform-specific shims are one-line pointers:
 | Flow (goals) | 14 days |
 | Flow (logs) | N/A (append-only) |
 
+### Common Patterns
+
+**Inbox as External Input Channel.**
+`state/flow/inbox/` is an external input channel for items arriving from outside the current session: autonomous agent escalations, inter-agent messages, background process outputs, operator notes left between sessions. Inbox is NOT a triage staging area for internally-generated work -- that goes directly to backlog. Session Open scans inbox; items get triaged to backlog or dismissed.
+
+**Parked vs Active Backlog.**
+Workspaces with significant idea volume may distinguish between the active work queue (`state/flow/backlog.md` -- items that will be worked on) and a parking lot (`state/shelf/parked.md` -- ideas deliberately deferred, someday/maybe items). The distinction maps to tier frequency: the backlog changes every session (flow), the parking lot changes monthly at most (shelf).
+
 ---
 
 ## 5. Ceremony Catalogue
@@ -260,12 +282,13 @@ Five ceremonies are required in every Behold workspace.
 **Steps:**
 1. Load state (bedrock if cold start, flow always).
 2. Read checkpoint.
-3. Scan action register. If `state/flow/open-actions.md` exists, scan for open items and include them in the briefing.
-4. Check what happened since last session.
-5. Present status, propose plan.
-6. Create session log.
+3. Scan backlog (`state/flow/backlog.md`) for items with status `open`. Include open items in the briefing. If the workspace uses an action register (`state/flow/open-actions.md`) instead, scan that.
+4. Check inbox (`state/flow/inbox/`). Triage items to backlog or dismiss.
+5. Check what happened since last session.
+6. Present status, propose plan.
+7. Create session log.
 
-**Output:** Agent oriented, operator briefed, open actions surfaced, log started.
+**Output:** Agent oriented, operator briefed, open work surfaced, log started.
 
 #### Session Close
 
@@ -273,12 +296,10 @@ Five ceremonies are required in every Behold workspace.
 
 **Steps:**
 1. Review accomplishments.
-2. Retro: keep / stop / start.
-3. Classify retro items (bug / feature / refactor / upgrade).
-4. Extract actions. Each actionable item gets an explicit status (`open`). Assign priority: now / next / later.
-5. Triage actions to the register. If the workspace maintains an action register (`state/flow/open-actions.md`), forward relevant actions with operator review. Retro is the snapshot; the register is the living list.
-6. Update checkpoint.
-7. Commit state.
+2. Invoke retro skill. If the session was trivial, note "lightweight session -- retro skipped."
+3. Triage actions from retro to backlog (`state/flow/backlog.md`). Each actionable item gets an explicit status (`open`). Assign priority: now / next / later. If the workspace uses a separate action register (`state/flow/open-actions.md`), forward there instead.
+4. Update checkpoint.
+5. Commit state.
 
 **Output:** Checkpoint current, actions tracked, lessons captured, clean handoff.
 
@@ -404,7 +425,9 @@ Progressive disclosure keeps skills readable regardless of complexity. It benefi
 |------|---------|---------|
 | Ceremony | Recurring rhythm | session-open, staleness-sweep |
 | Tool | Wraps external capability | fetch-url, transcribe-audio |
-| Workflow | Multi-step process | brainstorm -> design -> plan |
+| Workflow | Multi-step process | brainstorm -> design -> plan, retro |
+
+Workflow-type skills can be invoked at multiple scopes. For example, a retro skill may be invoked at session scope (by session-close), feature scope (after completing a milestone), or ad-hoc (when the operator requests reflection). The skill is the same; the scope determines what gets reflected on.
 
 ### Multi-Agent Skill Architecture
 
@@ -472,24 +495,25 @@ The more stable the tier, the more evidence required to change it.
 
 ### Action Register Lifecycle
 
-Retro actions tend to evaporate. They are written during Session Close, noted in the log, and never revisited. The action register lifecycle prevents this.
+Retro actions tend to evaporate. They are written during Session Close, noted in the log, and never revisited. The backlog lifecycle prevents this.
 
 ```
-observation -> action (open) -> triage -> register -> done
+observation -> action (open) -> backlog -> active (checkpoint) -> done
 ```
 
 **The pattern:**
-- Session Close produces actions with an explicit status (`open` or `done`).
-- Triage (during Session Close or as a separate step) forwards actions to a running register, with operator review.
-- Session Open scans the register and surfaces open items in the briefing.
-- Done actions are struck through in place for audit trail, not deleted.
+- Session Close (via retro skill) produces actions with an explicit status (`open` or `done`).
+- Triage (during Session Close) forwards actions to the backlog (`state/flow/backlog.md`), with operator review.
+- Session Open scans the backlog and surfaces open items in the briefing.
+- Done actions move to the Done section for audit trail, not deleted.
 
 **Rules:**
 1. Every action MUST have a status field to enable mechanical scanning.
-2. Actions flow from retros to the register during triage -- the operator decides which to forward.
+2. Actions flow from retros to the backlog during triage -- the operator decides which to forward.
 3. Session Open surfaces open actions. They do not get lost between sessions.
-4. The register file (`state/flow/open-actions.md`) is created lazily -- only when the first action is generated, not at workspace bootstrap.
-5. Workspaces with low action volume may keep actions inline in the checkpoint instead of a separate register. The lifecycle pattern is prescribed; the file structure is recommended.
+4. The backlog file is included in the starter kit and present from workspace bootstrap.
+5. Workspaces with low action volume may keep actions inline in the checkpoint instead of a separate backlog. The lifecycle pattern is prescribed; the file structure is recommended.
+6. Workspaces that prefer a separate `state/flow/open-actions.md` register may still use one. The backlog is the simpler default.
 
 ### Lessons as First-Class Artifacts
 
@@ -577,7 +601,7 @@ GATHER -> EVALUATE -> ESCALATE
 
 1. Never modify bedrock.
 2. Never make irreversible changes.
-3. Escalate over act. When uncertain, write to `inbox/` and stop.
+3. Escalate over act. When uncertain, write to `state/flow/inbox/` and stop. The interactive agent triages inbox items to the backlog during Session Open.
 4. Log everything. Every run produces an audit trail.
 5. Fail silent, not loud.
 
