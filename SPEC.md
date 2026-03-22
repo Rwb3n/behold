@@ -209,16 +209,30 @@ workspace/
   AGENTS.md
 ```
 
-### The Checkpoint
+### Session Orientation
 
-The most important file. It answers: What is active? What is next? What is later? What happened recently?
+Session Open MUST produce orientation: what is active, what happened recently, what is next. This orientation is a prerequisite for planning.
 
-Updated at:
-- **Session Close** (required).
-- **After significant milestones** (expected).
-- **Before any operation that risks context loss** (defensive).
+HOW orientation is produced is implementation-specific. Valid approaches include:
+- A checkpoint file maintained across sessions.
+- A gather script that assembles orientation from git, filesystem, and memory.
+- Direct inspection of goals.md, backlog.md, and recent logs.
+- Any combination of the above.
 
-When a workspace matures and checkpoint's Active/Next/Later cannot hold enough work detail, create shelf-level tracking documents. Checkpoint points to them with references. The tracking taxonomy is workspace-specific -- epics, sprints, arcs, chapters, or any structure that fits the domain. Behold does not prescribe the vocabulary; it prescribes the tier separation. Detailed tracking is shelf-frequency (changes weekly), not flow-frequency (changes every session).
+If a workspace uses a checkpoint file, it SHOULD be treated as a **cache** (derived state), not a source of truth. It MAY become stale; sessions SHOULD verify it against authoritative sources.
+
+**Source state** (must be persisted, cannot be regenerated):
+- `goals.md` -- current intent.
+- `backlog.md` -- prioritised work queue.
+- `log/` -- append-only session records.
+- `bedrock/` -- principles, identity, methods.
+
+**Derived state** (must be available, can be regenerated):
+- Checkpoint / orientation briefing.
+- Summary indices.
+- Cached computations.
+
+When a workspace matures, create shelf-level tracking documents for detailed work breakdowns. The tracking taxonomy is workspace-specific -- epics, sprints, arcs, chapters, or any structure that fits the domain. Behold does not prescribe the vocabulary; it prescribes the tier separation. Detailed tracking is shelf-frequency (changes weekly), not flow-frequency (changes every session).
 
 ### The Methods Layer
 
@@ -269,6 +283,7 @@ Platform-specific shims are one-line pointers:
 3. **Shelf is load-on-demand.** Do not read everything at boot.
 4. **Everything is git-tracked.** State changes are commits.
 5. **Staleness thresholds are explicit.**
+6. **Distinguish source from derived state.** Derived state that masquerades as source state is a staleness risk. When in doubt, prefer regeneration over persistence.
 
 | Tier | Default Staleness Threshold |
 |------|----------------------------|
@@ -388,6 +403,21 @@ steps:       ordered checklist
 output:      what it produces
 references:  which principles it serves
 ```
+
+### Executable Components
+
+Ceremony steps MAY be partially automated via executable scripts that perform observation, data gathering, or formatting. Automation reduces token cost and increases consistency. The ceremony's judgment steps (propose plan, triage, decide) remain with the agent.
+
+The pattern: **scripts gather facts, agent applies judgment.**
+
+Example: a `gather` script that checks system status, git history, backlog state, and memory index -- producing a structured briefing that the agent interprets rather than assembling from scratch.
+
+Guidelines for executable ceremony components:
+1. Scripts MUST be idempotent and side-effect-free (read-only observation).
+2. Scripts SHOULD produce structured output (sections, labels) that the agent can parse.
+3. Scripts MUST NOT make decisions, prioritise, or filter -- that is the agent's role.
+4. Failed scripts MUST NOT block the ceremony; the agent falls back to manual observation.
+5. The ceremony definition SHOULD document which steps are automated and which require judgment.
 
 ---
 
@@ -559,14 +589,17 @@ Agent memory files tend to accumulate facts that duplicate authoritative sources
 
 **Memory is an index, not a store.** If a fact has an authoritative home, point to it. If the fact has no other home, store it directly.
 
-### Two Roles
+### Three Roles
 
 | Role | Contains | Example |
 |------|----------|---------|
 | **Index** | Pointers to where truth lives | "Current priorities: see `state/flow/checkpoint.md`" |
 | **Cache** | Hard-won knowledge with no other home | "Always single-quote SSH commands from this OS -- double quotes leak PATH variables" |
+| **Synthesis** | Cross-pollinated connections, rationale, standing queries | "Dream finding: ceremony scripts + pinocchio timers = same gather pattern" |
 
-The test: **could this fact go stale while remaining in memory?** If yes, it should be a pointer to wherever the fact gets maintained. If no (because it is a stable pattern or quirk), store it directly.
+The test for index vs cache: **could this fact go stale while remaining in memory?** If yes, it should be a pointer to wherever the fact gets maintained. If no (because it is a stable pattern or quirk), store it directly.
+
+The test for synthesis: **did this knowledge exist before the agent combined its inputs?** If no -- if it is a novel connection, a design rationale, or a question that arose from juxtaposing sources -- it is synthesis. Synthesis is original intellectual product of the agent's work and compounds in value over time.
 
 ### Structure
 
@@ -594,6 +627,22 @@ The test: **could this fact go stale while remaining in memory?** If yes, it sho
 3. **Cache entries earn their place.** A gotcha must have caused a real problem at least once. Do not preemptively cache.
 4. **Session bridge is minimal.** Last session reference, pointer to open threads, and flags (uncommitted work, overdue sweeps). Not a project summary.
 5. **Review cache on staleness sweep.** Gotchas and lessons go stale too. Verify they are still relevant.
+
+### Memory as Active Intelligence (Optional)
+
+Memory can function not just as storage but as an active intelligence layer. This is optional but, when implemented, provides a different entropy resistance mechanism: not maintaining state, but growing understanding.
+
+Components:
+
+- **Standing questions**: persistent queries that match against future knowledge. When new information enters the system, it is tested against open questions. Answered questions are closed and their resolutions recorded.
+
+- **Undirected synthesis**: random or semi-random pairing of memories to surface emergent connections. This is the "dream" operation -- low-cost, high-optionality. Most pairings produce nothing; occasional pairings surface structural insights invisible to directed search.
+
+- **Corpus maintenance**: periodic review to close answered questions, remove duplicates, merge related entries, and promote recurring patterns to principles. This is the "tend" operation -- entropy resistance applied to memory itself.
+
+- **Design rationale**: WHY decisions were made, stored as queryable entries. Future sessions facing similar decisions can recall prior reasoning rather than re-deriving it. This is the highest-value memory type per byte stored.
+
+The pattern across all components: memory is not a log to be read but a corpus to be queried. Recalling relevant memories before design decisions is as important as reading git history before code changes.
 
 ---
 
