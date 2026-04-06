@@ -279,9 +279,32 @@ git add AGENTS.md CLAUDE.md state/ skills/
 git commit -m "feat: scaffold Behold agent state system"
 ```
 
+## Wrap Mode
+
+For existing codebases that want Behold structure without reorganization.
+
+**Trigger:** user says "behold init --wrap", "wrap this repo", or the workspace has significant existing code.
+
+**Guard change:** Instead of aborting when `state/bedrock/` exists, abort only when `state/bedrock/principles.md` exists (a wrapped repo may have a `state/` directory for other purposes).
+
+**Differences from standard init:**
+
+1. **Does NOT move existing files** into `state/`. The Behold scaffold sits alongside the existing project structure.
+2. **Does NOT modify** `src/`, `lib/`, `app/`, or any existing code directories.
+3. **Prepends shim** to existing `CLAUDE.md` / `.cursorrules` / `copilot-instructions.md` (same as standard).
+4. **Creates `AGENTS.md`** or updates existing with bootstrap section.
+5. **Interview includes:** "What existing directories should the agent know about?" — answer populates `environment.md`.
+
+Everything else is identical to standard init. The scaffold is additive — it creates `state/`, `skills/`, and entry points without touching the existing project layout.
+
+**When to use wrap vs standard:**
+- **Standard:** New workspace, greenfield, or repo with no existing conventions.
+- **Wrap:** Existing codebase with established structure. The team wants ceremony and continuity without reorganizing their project.
+
 ## Notes
 
 - **Minimal scaffold per P4.** Only 3 ceremony skills. Retro, staleness-sweep, incident-response are earned when needed.
 - **Principles are Behold defaults.** The operator amends them later if needed. Do not customize during init.
 - **Identity and environment are drafts.** The agent should refine them in its first session as it learns the workspace. Good enough > perfect.
 - **Never overwrite.** If a file already exists (other than CLAUDE.md shim prepend), skip it and note it in the summary.
+- **BEHOLD_VERSION.** Init creates a `BEHOLD_VERSION` file containing the current spec version. See Section 10 of the spec.

@@ -1,10 +1,12 @@
 # [Workspace Name]
 
+**Behold v5** — see `BEHOLD_VERSION` for spec alignment.
+
 ## Bootstrap
 
 Read in order:
 
-1. `state/bedrock/` — principles, identity, environment (read every session)
+1. `state/bedrock/` — principles, identity, environment, methods (read every session)
 2. `state/flow/checkpoint.md` — current position (read on resume)
 3. `state/flow/goals.md` — standing and short-term goals
 

@@ -709,7 +709,199 @@ The interactive agent and autonomous agent share state but not identity.
 
 ---
 
-## 10. Lineage
+## 10. Workspace Ownership
+
+### Two Zones
+
+Every file in a Behold workspace belongs to exactly one zone.
+
+| Zone | Owner | Update policy |
+|------|-------|---------------|
+| **Seeded** | Behold spec (initial), workspace (ongoing) | Workspace compares against spec changelog, adopts selectively |
+| **Owned** | Workspace only | Never touched by spec updates |
+
+**Seeded files are owned locally after init.** The spec provides the initial content; the workspace takes ownership from that point. Updates are opt-in, not automatic. This preserves P6 (Feedback Over Prescription) — workspaces amend principles based on their own experience, not because an upstream pushed a change.
+
+The two zones exist to answer a different question for each file type:
+- Seeded file changes: "Review this change, consider adopting."
+- Owned file structure changes: "New file added to the starter — consider whether you need it."
+
+### File Ownership Table
+
+| File | Zone | Notes |
+|------|------|-------|
+| `BEHOLD_VERSION` | Seeded | Updated by operator after adopting spec changes |
+| `AGENTS.md` | Seeded | Template structure from spec, workspace customizes content |
+| `shims/CLAUDE.md` | Seeded | One-line pointer, rarely changes |
+| `shims/.cursorrules` | Seeded | One-line pointer, rarely changes |
+| `shims/copilot-instructions.md` | Seeded | One-line pointer, rarely changes |
+| `state/bedrock/principles.md` | Seeded | Behold defaults, workspace amends per P6 |
+| `state/bedrock/identity.md` | Owned | Entirely workspace-specific |
+| `state/bedrock/environment.md` | Owned | Entirely workspace-specific |
+| `state/bedrock/methods.md` | Owned | Workspace declares its own methods |
+| `state/shelf/*` | Owned | All shelf content is workspace-specific |
+| `state/flow/*` | Owned | All flow content is workspace-specific |
+| `skills/session-open/` | Seeded | Core ceremony, workspace may extend |
+| `skills/session-close/` | Seeded | Core ceremony, workspace may extend |
+| `skills/session-resume/` | Seeded | Core ceremony, workspace may extend |
+| `skills/staleness-sweep/` | Seeded | Core ceremony |
+| `skills/incident-response/` | Seeded | Core ceremony |
+| `skills/retro/` | Seeded | Core ceremony |
+| `skills/*` (domain) | Owned | Workspace-created skills |
+| `tools/*` | Owned | Workspace-created tools |
+| `docs/*` | Owned | Workspace-created docs |
+
+### BEHOLD_VERSION Marker
+
+```
+workspace/
+  BEHOLD_VERSION          # "5" (major version integer)
+```
+
+A plain integer. No semver — the spec is a document, not an API. The version answers one question: "which spec edition was this workspace last aligned with?"
+
+The operator updates it manually after reviewing a changelog entry and adopting relevant changes. It is never updated automatically.
+
+### Changelog
+
+The spec ships a `CHANGELOG.md` at the repository root. Each entry covers:
+- What changed in the spec.
+- What changed in the starter kit.
+- Migration steps for existing workspaces.
+
+Workspaces read the changelog and decide what to adopt. There is no pull mechanism.
+
+---
+
+## 11. Extension Points
+
+The following patterns are validated but not required. They emerged from the reference implementation — a development lab running 500+ Behold sessions with CLI tools and autonomous agents — and are documented here for workspaces that encounter the same problems.
+
+Adopt an extension when the pain it addresses is real in your workspace. P4 (Earn Complexity) applies: do not add structure preemptively. Each extension below indicates the complexity cost and any prerequisites.
+
+| Extension | Complexity | Prerequisite |
+|-----------|------------|--------------|
+| Hooks architecture | Medium | Agent platform with hook support |
+| Golden suite | Medium | Hook support + assertion runner |
+| Development drivers | Low | `methods.md` |
+| Versioned bedrock | Low | None |
+| Faculty routers | Low | Skill definitions |
+| Memory as active intelligence | High | Memory CLI + autonomous layer |
+| Component sweeps | Medium | Sweep CLI or ceremony skill |
+| Ceremony scope ladder | Medium | Project manifest convention |
+| Envelope protocol | High | Multi-agent runner |
+
+---
+
+### Hooks Architecture
+
+Pre- and post-tool-use event handlers that fire on specific agent actions. Used to enforce live policy: require a memory recall before certain decisions, block writes to protected files, or inject context at tool boundaries.
+
+Validated in the reference implementation as the enforcement engine for governance policies. Without hooks, policy lives in bedrock text and relies on the agent reading it; with hooks, violations are intercepted before they land.
+
+**Complexity:** Medium. Requires an agent platform that exposes hook events (e.g., `PreToolUse`, `PostToolUse`). The hook scripts themselves are simple shell or Python; the integration cost depends on the platform.
+
+**Prerequisite:** Agent platform with hook support.
+
+---
+
+### Golden Suite
+
+A set of machine-readable assertions derived from validated corrections — cases where a human corrected an agent error and the correction was promoted to a constraint. The suite runs on every bedrock edit, catching regressions before they propagate.
+
+Validated as a defense against the most expensive class of errors: silent drift from agreed constraints. A golden check costs a few milliseconds; re-deriving a violated constraint costs a session.
+
+**Complexity:** Medium. Requires hook support to trigger the suite and an assertion runner to evaluate checks. The suite itself is a directory of assertion files with expected outputs.
+
+**Prerequisite:** Hooks architecture (above).
+
+---
+
+### Development Drivers
+
+A table in `methods.md` that maps uncertainty type to method selection: brainstorm, spike, TDD, direct implementation. Agents consult it before choosing an approach rather than defaulting to the first method that comes to mind.
+
+Validated as a lightweight forcing function that prevents over-engineering familiar problems and under-researching novel ones.
+
+**Complexity:** Low. A table added to `methods.md`. No tooling required.
+
+**Prerequisite:** `methods.md` (Section 4, Methods Layer).
+
+---
+
+### Versioned Bedrock
+
+An append-only audit trail (`state/bedrock/versions.jsonl`) that records a snapshot of bedrock metrics — file count, word count, principle count, last-modified dates — on every bedrock change.
+
+Validates that bedrock is stable by making drift visible over time. Workspaces with frequent unexpected bedrock edits benefit most.
+
+**Complexity:** Low. A script that appends a JSON line on each bedrock commit. No external dependencies.
+
+**Prerequisite:** None.
+
+---
+
+### Faculty Routers
+
+Three structured cognitive modes — thinking (decomposition), judgment (evaluation), engineering (implementation approach) — packaged as skills invoked before decision points.
+
+Validated across hundreds of sessions as a check against the default agent behavior of jumping to the most locally coherent answer. The thinking router is the highest-value entry; adopt it first.
+
+**Complexity:** Low. Three skill definitions and discipline to invoke them before decisions. No tooling.
+
+**Prerequisite:** Skill definitions (Section 6).
+
+---
+
+### Memory as Active Intelligence
+
+Extends the memory system (Section 8) with four components: standing questions (persistent queries matched against new knowledge), undirected synthesis (random pairing of memories to surface emergent connections), corpus maintenance (periodic pruning and merging), and design rationale storage (WHY decisions were made, queryable by future sessions).
+
+Validated as the highest-value memory investment per byte stored. Design rationale in particular prevents re-deriving decisions that were hard-won in earlier sessions.
+
+**Complexity:** High. Requires a memory CLI with full-text search, a background process to run synthesis, and discipline to capture rationale at decision time.
+
+**Prerequisite:** Autonomous layer (Section 9) for synthesis and corpus maintenance. Memory CLI for storage and recall.
+
+---
+
+### Component Sweeps
+
+Per-document governance audits: an identity sweep verifies `identity.md` reflects current workspace reality, a methods sweep checks that declared methods are actually practiced, a principles sweep tests whether principles are still believed. Each sweep produces a structured report and proposed amendments.
+
+Validated as the enforcement mechanism for the Feedback Over Prescription principle (P6). Without sweeps, bedrock goes stale in the same way any other document does.
+
+**Complexity:** Medium. A ceremony skill per component, plus discipline to run them on the staleness sweep cadence.
+
+**Prerequisite:** Ceremony skill infrastructure (Section 5).
+
+---
+
+### Ceremony Scope Ladder
+
+Ceremonies run at multiple scopes: session (every session), project (at project boundaries), and entity (across all projects). The scope ladder makes this explicit, with separate trigger conditions and outputs per scope.
+
+Validated in workspaces managing multiple concurrent projects where session-scope ceremonies were insufficient to catch project-level drift.
+
+**Complexity:** Medium. Requires a project manifest convention to define project boundaries. The ceremony skills themselves gain a `scope:` parameter.
+
+**Prerequisite:** Project manifest convention (a `PROJECT.md` at each project root or equivalent).
+
+---
+
+### Envelope Protocol
+
+Structured inter-agent communication that transfers all five loop layers — beliefs, methods, gates, actions, products — as a handoff envelope. The sending agent packages its current state into a structured document; the receiving agent bootstraps from the envelope rather than from scratch.
+
+Validated in the reference implementation for cross-agent handoffs where the receiving agent had no shared bedrock with the sender. Without envelopes, context loss at agent boundaries is severe.
+
+**Complexity:** High. Requires a multi-agent runner that supports agent-to-agent communication and a defined envelope schema both agents understand.
+
+**Prerequisite:** Multi-agent runner (e.g., net L2 or equivalent).
+
+---
+
+## 12. Lineage
 
 An infrastructure operations workspace managing physical servers evolved governance-first patterns: principles, ceremonies, activities, assets, and a self-amending feedback loop. It developed map-and-territory separation, health check ceremonies, SSH-based territory verification, and a five-document service pattern.
 
