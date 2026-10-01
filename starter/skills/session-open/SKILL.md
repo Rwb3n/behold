@@ -1,11 +1,13 @@
 ---
 name: session-open
-type: ceremony
-trigger: starting a work session
-cadence: every session
-depends: none
-references: P1 (Continuity Over Capability), P2 (Observe Before You Act)
-provenance: required ceremony -- session continuity is the foundation of the framework (P1)
+description: Start a work session by reading state, checking for changes, and briefing the operator.
+metadata:
+  type: ceremony
+  trigger: starting a work session
+  cadence: every session
+  depends: none
+  references: P1 (Continuity Over Capability), P2 (Observe Before You Act)
+  provenance: required ceremony -- session continuity is the foundation of the framework (P1)
 ---
 
 # Session Open

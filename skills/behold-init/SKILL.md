@@ -1,16 +1,19 @@
 ---
 name: behold-init
-type: ceremony
-trigger: user says "behold init", "scaffold behold", "set up agent", or invokes /behold-init
-cadence: once per workspace
-depends: none
-references: P4 (Earn Complexity)
-provenance: bootstrap ceremony -- creates the minimal Behold scaffold in a new workspace
+description: Scaffold a Behold-class agent into an existing repository through a brief interview.
+metadata:
+  type: ceremony
+  trigger: user says "behold init", "scaffold behold", "set up agent", or invokes /behold-init
+  cadence: once per workspace
+  depends: none
+  references: P4 (Earn Complexity)
+  provenance: bootstrap ceremony -- creates the minimal Behold scaffold in a new workspace
 ---
 
 # Behold Init
 
-Scaffold a Behold-class agent into any existing repo through a brief interview.
+Scaffold a Behold-class agent into any existing repo through a brief interview. Make the
+result discoverable by both Claude Code and Codex.
 
 ## Guard
 
@@ -33,7 +36,8 @@ Silently gather what you can from the workspace before asking questions:
 - **Existing README.md** — read for project context
 - **Recent git log** — understand what the project does
 
-Do not present findings yet. Use them as defaults in the interview.
+Also check whether `.claude/skills/` or `.agents/skills/` already contains skills; preserve
+existing files in both locations. Do not present findings yet. Use them as defaults in the interview.
 
 ## Step 2: Interview
 
@@ -94,7 +98,8 @@ Stability tiers (how often it changes):
 
 ## Skills
 
-Available skills are in `skills/`. Each directory contains a SKILL.md with trigger conditions, steps, and expected output.
+Project skills are in `.claude/skills/` for Claude Code and `.agents/skills/` for Codex.
+Each skill directory contains a `SKILL.md`. Keep matching skills in both locations in sync.
 
 ## Quick Reference
 
@@ -248,11 +253,14 @@ Last updated: {today}
 
 ### Skills
 
-Copy these 3 ceremony skills verbatim from the Behold starter kit:
+Copy these 3 ceremony skills verbatim from the Behold starter kit into both
+`.claude/skills/` and `.agents/skills/`. The starter files have shared `name` and
+`description` frontmatter; Behold-specific fields live under `metadata` so Codex can
+validate them. Do not overwrite an existing skill in either location.
 
-**`skills/session-open/SKILL.md`** — from `behold/starter/skills/session-open/SKILL.md`
-**`skills/session-close/SKILL.md`** — from `behold/starter/skills/session-close/SKILL.md`
-**`skills/session-resume/SKILL.md`** — from `behold/starter/skills/session-resume/SKILL.md`
+**`.claude/skills/session-open/SKILL.md`** and **`.agents/skills/session-open/SKILL.md`** — from `behold/starter/skills/session-open/SKILL.md`
+**`.claude/skills/session-close/SKILL.md`** and **`.agents/skills/session-close/SKILL.md`** — from `behold/starter/skills/session-close/SKILL.md`
+**`.claude/skills/session-resume/SKILL.md`** and **`.agents/skills/session-resume/SKILL.md`** — from `behold/starter/skills/session-resume/SKILL.md`
 
 ## Step 4: Present Summary
 
@@ -264,7 +272,7 @@ Behold scaffold created for "{workspace_name}":
 Entry points:  AGENTS.md, CLAUDE.md (shim)
 Bedrock:       identity.md, environment.md, principles.md, methods.md
 Flow:          checkpoint.md, goals.md, backlog.md, inbox/, log/
-Skills:        session-open, session-close, session-resume
+Skills:        session-open, session-close, session-resume (Claude Code and Codex)
 Shelf:         placeholder (.gitkeep)
 
 {count} files created. Review and approve to commit?
@@ -275,7 +283,7 @@ Shelf:         placeholder (.gitkeep)
 On approval:
 
 ```bash
-git add AGENTS.md CLAUDE.md state/ skills/
+git add AGENTS.md CLAUDE.md state/ .claude/skills/ .agents/skills/
 git commit -m "feat: scaffold Behold agent state system"
 ```
 
@@ -295,7 +303,8 @@ For existing codebases that want Behold structure without reorganization.
 4. **Creates `AGENTS.md`** or updates existing with bootstrap section.
 5. **Interview includes:** "What existing directories should the agent know about?" — answer populates `environment.md`.
 
-Everything else is identical to standard init. The scaffold is additive — it creates `state/`, `skills/`, and entry points without touching the existing project layout.
+Everything else is identical to standard init. The scaffold is additive — it creates `state/`,
+`.claude/skills/`, `.agents/skills/`, and entry points without touching the existing project layout.
 
 **When to use wrap vs standard:**
 - **Standard:** New workspace, greenfield, or repo with no existing conventions.

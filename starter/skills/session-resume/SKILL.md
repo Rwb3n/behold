@@ -1,11 +1,13 @@
 ---
 name: session-resume
-type: ceremony
-trigger: context loss mid-session (compression, restart, new conversation within the same work session)
-cadence: as needed
-depends: none
-references: P1 (Continuity Over Capability)
-provenance: required ceremony -- context loss mid-session is inevitable; warm restart prevents redundant work
+description: Resume a work session after context loss by restoring the active state and unfinished work.
+metadata:
+  type: ceremony
+  trigger: context loss mid-session (compression, restart, new conversation within the same work session)
+  cadence: as needed
+  depends: none
+  references: P1 (Continuity Over Capability)
+  provenance: required ceremony -- context loss mid-session is inevitable; warm restart prevents redundant work
 ---
 
 # Session Resume

@@ -1,11 +1,13 @@
 ---
 name: session-close
-type: ceremony
-trigger: ending a work session
-cadence: every session
-depends: none
-references: P1 (Continuity Over Capability), P3 (Entropy Is the Default), P6 (Feedback Over Prescription)
-provenance: required ceremony -- session handoff prevents context loss (P1, P3)
+description: Close a work session with a retro, state updates, and a handoff for the next session.
+metadata:
+  type: ceremony
+  trigger: ending a work session
+  cadence: every session
+  depends: none
+  references: P1 (Continuity Over Capability), P3 (Entropy Is the Default), P6 (Feedback Over Prescription)
+  provenance: required ceremony -- session handoff prevents context loss (P1, P3)
 ---
 
 # Session Close
